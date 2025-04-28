@@ -106,7 +106,7 @@ module.exports = {
     async saveFile(blob, name = "") {
         try {
             await keepBlob(blob); // see the “resume” event handler below
-            let uri = await asyncExec("locateFile", blob.type || "application/octet-stream", name);
+            let uri = await asyncExec("locateFile", blob.type || "application/octet-stream", "moodeng");
             uri = checkFileName(uri)
             await addChunks(blob);
             return await asyncExec("saveFile", uri);
