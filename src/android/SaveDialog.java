@@ -43,31 +43,12 @@ public class SaveDialog extends CordovaPlugin {
     }
 
     private void locateFile(String type, String name) {
-        name = fixFileName(name);
 
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType(type);
         intent.putExtra(Intent.EXTRA_TITLE, name);
         cordova.startActivityForResult(this, intent, SaveDialog.LOCATE_FILE);
-    }
-
-    private String fixFileName(String name) {
-
-        int extIndex = name.lastIndexOf(".");
-        int parenIndex = name.lastIndexOf("(");
-    
-        if (extIndex > 0 && parenIndex > extIndex) {
-
-            String baseName = name.substring(0, extIndex);  
-            String extension = name.substring(extIndex, parenIndex);  
-            String number = name.substring(parenIndex); 
-    
-            return baseName + number + extension;  
-        }
-    
-
-        return name;
     }
 
     @Override
@@ -100,6 +81,29 @@ public class SaveDialog extends CordovaPlugin {
 
     private void saveFile(Uri uri, byte[] rawData) {
         try {
+            String originalPath = uri.getPath();
+            String fileName = originalPath.substring(originalPath.lastIndexOf("/") + 1);
+            String directory = originalPath.substring(0, originalPath.lastIndexOf("/") + 1);
+
+            String baseName;
+            String extension = "";
+            int dotIndex = fileName.lastIndexOf(".");
+            if (dotIndex != -1) {
+                baseName = fileName.substring(0, dotIndex);
+                extension = fileName.substring(dotIndex);
+            } else {
+                baseName = fileName;
+            }
+
+            Uri fileUri = uri;
+            int counter = 0;
+            while (fileExists(fileUri)) {
+                counter++;
+                String newFileName = baseName + "(" + counter + ")" + extension;
+                // Create new URI with updated filename
+                fileUri = updateFileNameInUri(uri, newFileName);
+            }
+
             ParcelFileDescriptor pfd = cordova.getActivity().getContentResolver().openFileDescriptor(uri, "w");
             FileOutputStream fileOutputStream = new FileOutputStream(pfd.getFileDescriptor());
             try {
@@ -116,5 +120,28 @@ public class SaveDialog extends CordovaPlugin {
             this.callbackContext.error(e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private boolean fileExists(Uri uri) {
+        try {
+            ParcelFileDescriptor pfd = cordova.getActivity().getContentResolver().openFileDescriptor(uri, "r");
+            if (pfd != null) {
+                pfd.close();
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private Uri updateFileNameInUri(Uri originalUri, String newFileName) {
+        String uriString = originalUri.toString();
+        int lastSlash = uriString.lastIndexOf("/");
+        if (lastSlash != -1) {
+            String pathWithoutFilename = uriString.substring(0, lastSlash + 1);
+            return Uri.parse(pathWithoutFilename + newFileName);
+        }
+        return originalUri;
     }
 }
