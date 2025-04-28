@@ -44,11 +44,70 @@ async function addChunks(blob) {
     }
 }
 
+function checkFileName(name) {
+    let isExist = false;
+    window.resolveLocalFileSystemURL(name,() => {
+        isExist = true;
+    },
+    () => {
+        isExist = false;
+    }
+    )
+    if(isExist){
+        const fileObj = extractFileName(name);
+        const newFileName = `${fileObj.base}(${fileObj.counter}).${fileObj.ext}`
+        return checkFileName(newFileName);
+    }
+    return name;
+
+}
+
+function extractFileName(fileName) {
+    let baseName;
+    let extension = "";
+    let counter = extractNumberFromLastParentheses(fileName);
+    let dotIndex = fileName.lastIndexOf(".");
+    if (dotIndex != -1) {
+        baseName = fileName.substring(0, dotIndex);
+        extension = fileName.substring(dotIndex);
+    } else {
+        return {base: fileName, ext: "pdf", counter: 0};
+    }
+    return {base: baseName, ext: extension, counter: counter};
+}
+
+function extractNumberFromLastParentheses(str) {
+  // Find all matches of numbers inside parentheses
+  const regex = /\((\d+)\)/g;
+  let matches = [];
+  let match;
+  
+  // Collect all matches
+  while ((match = regex.exec(str)) !== null) {
+    matches.push({
+      fullMatch: match[0],
+      number: parseInt(match[1], 10),
+      index: match.index
+    });
+  }
+  
+  // If we found matches, return the number from the last one
+  if (matches.length > 0) {
+    // Sort by index to get the last occurrence
+    matches.sort((a, b) => a.index - b.index);
+    return matches[matches.length - 1].number;
+  }
+  
+  // If no match is found, return null
+  return 0;
+}
+
 module.exports = {
     async saveFile(blob, name = "") {
         try {
             await keepBlob(blob); // see the “resume” event handler below
             let uri = await asyncExec("locateFile", blob.type || "application/octet-stream", name);
+            uri = checkFileName(uri)
             await addChunks(blob);
             return await asyncExec("saveFile", uri);
         } catch (reason) {
