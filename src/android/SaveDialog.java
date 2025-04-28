@@ -43,11 +43,31 @@ public class SaveDialog extends CordovaPlugin {
     }
 
     private void locateFile(String type, String name) {
+        name = fixFileName(name);
+
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType(type);
         intent.putExtra(Intent.EXTRA_TITLE, name);
         cordova.startActivityForResult(this, intent, SaveDialog.LOCATE_FILE);
+    }
+
+    private String fixFileName(String name) {
+
+        int extIndex = name.lastIndexOf(".");
+        int parenIndex = name.lastIndexOf("(");
+    
+        if (extIndex > 0 && parenIndex > extIndex) {
+
+            String baseName = name.substring(0, extIndex);  
+            String extension = name.substring(extIndex, parenIndex);  
+            String number = name.substring(parenIndex); 
+    
+            return baseName + number + extension;  
+        }
+    
+
+        return name;
     }
 
     @Override
