@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Amphiluke/cordova-plugin-save-dialog.git"
+    "url": "git+https://github.com/wasanmsn/cordova-plugin-save-dialog-improve"
   },
   "keywords": [
     "cordova",

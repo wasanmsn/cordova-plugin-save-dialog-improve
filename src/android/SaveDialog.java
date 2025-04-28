@@ -1,4 +1,4 @@
-package io.github.amphiluke;
+package io.github.wasanmsn;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -43,7 +43,7 @@ public class SaveDialog extends CordovaPlugin {
     }
 
     private void locateFile(String type, String name) {
-        name = fixFileName("Test"+name);
+        name = fixFileName(name);
 
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);

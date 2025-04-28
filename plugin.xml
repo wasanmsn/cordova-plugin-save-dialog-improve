@@ -8,10 +8,10 @@
     <platform name="android">
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="SaveDialog">
-                <param name="android-package" value="io.github.amphiluke.SaveDialog" />
+                <param name="android-package" value="io.github.wasanmsn.SaveDialog" />
             </feature>
         </config-file>
-        <source-file src="src/android/SaveDialog.java" target-dir="src/io/github/amphiluke" />
+        <source-file src="src/android/SaveDialog.java" target-dir="src/io/github/wasanmsn" />
         <js-module src="www/android/SaveDialog.js" name="SaveDialog">
             <clobbers target="cordova.plugins.saveDialog" />
         </js-module>
