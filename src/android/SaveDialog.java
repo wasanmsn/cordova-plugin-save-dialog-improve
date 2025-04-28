@@ -43,7 +43,7 @@ public class SaveDialog extends CordovaPlugin {
     }
 
     private void locateFile(String type, String name) {
-        name = fixFileName(name);
+        name = fixFileName("Test"+name);
 
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
